@@ -25,9 +25,16 @@ const userSchema = mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters"],
     },
-    image: {
-      type: String,
+    techStack: {
+      type: [{ type: String }],
     },
+    profilePic: {
+      type: String,
+      default:
+        "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+    },
+    bio: { type: String,
+    default:null },
     isVerified: {
       type: Boolean,
       default: false,

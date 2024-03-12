@@ -10,6 +10,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { logger } from "./middleware/logger.js";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/User.js";
+import postRoutes from "./routes/Post.js"
 import otpRoutes from "./routes/OTP.js";
 import { updateImage } from "./Controllers/User.js";
 
@@ -27,9 +28,10 @@ app.use(morgan("dev"));
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-app.use("/api/v1/auth", userRoutes);
-app.use("/api/v1/auth/otp", otpRoutes);
-app.post("/api/v1/auth/updateImage/:id", upload.single("image"), updateImage);
+app.use("/user", userRoutes);
+app.use("/otp", otpRoutes);
+app.use("/post",postRoutes);
+app.post("/updateImage/:id", upload.single("image"), updateImage);
 
 app.use(errorHandler);
 const port = process.env.PORT || 3000;
