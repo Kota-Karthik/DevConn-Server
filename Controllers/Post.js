@@ -33,6 +33,11 @@ export const likePost = async (req, res) => {
       throw new Error("Post not found!!");
     }
 
+    // Check if userId is already present in likedBy array
+    if (post.likedBy.includes(userId)) {
+      return res.status(400).json({ message: "Post already liked by this user" });
+    }
+
     // Append userId to the likedBy array
     post.likedBy.push(userId);
 
@@ -45,6 +50,31 @@ export const likePost = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+export const unLikePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.params.userId;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      throw new Error("Post not found!!");
+    }
+
+    // Remove userId from the likedBy array
+    post.likedBy = post.likedBy.filter((id) => id.toString() !== userId);
+
+    // Update the post with the new likedBy array
+    await Post.findByIdAndUpdate(postId, { likedBy: post.likedBy });
+
+    res.status(200).json({ message: "Post unliked successfully" });
+  } catch (error) {
+    console.error("Error while unliking post:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 export const commentPost = async (req, res) => {
   try {
