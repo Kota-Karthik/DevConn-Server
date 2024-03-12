@@ -13,8 +13,8 @@ import userRoutes from "./routes/User.js";
 import otpRoutes from "./routes/OTP.js";
 import { updateImage } from "./Controllers/User.js";
 
+dotenv.config({ path: "./config.env" });
 const app = express();
-
 app.use(express.json());
 app.use(cookieParser());
 
