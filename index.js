@@ -12,6 +12,7 @@ import connectDB from "./config/db.js";
 import userRoutes from "./routes/User.js";
 import postRoutes from "./routes/Post.js"
 import otpRoutes from "./routes/OTP.js";
+import hackRoutes from "./routes/Hackathon.js";
 import { updateImage } from "./Controllers/User.js";
 
 dotenv.config({ path: "./config.env" });
@@ -31,6 +32,7 @@ const upload = multer({ storage });
 app.use("/user", userRoutes);
 app.use("/otp", otpRoutes);
 app.use("/post",postRoutes);
+app.use("/hackathon",hackRoutes);
 app.post("/updateImage/:id", upload.single("image"), updateImage);
 
 app.use(errorHandler);
