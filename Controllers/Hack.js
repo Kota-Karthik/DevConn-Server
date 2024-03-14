@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
 import Hackathon from "../model/hackathonModel";
 
-export const newHackathon =async(req,res)=>{
+export const newHackathon = async (req,res)=>{
    try{
     const {hackathonLink,techStackRequired,numberOfTeammatesRequired,deadline}=req.body;
     const postedBy=req.params.id;

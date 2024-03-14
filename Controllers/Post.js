@@ -1,9 +1,8 @@
-import mongoose from "mongoose";
 import Post from "../model/postModel.js";
 import Comment from "../model/commentModel.js";
 export const newPost = async (req,res)=>{
     try{
-        const postedBy=req.params.id;
+        const postedBy=req.params.userId;
         const description=req.body.description;
 
         const post = await Post.create({

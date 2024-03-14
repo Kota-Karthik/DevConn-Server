@@ -31,8 +31,8 @@ const upload = multer({ storage });
 
 app.use("/user", userRoutes);
 app.use("/otp", otpRoutes);
-app.use("/post",postRoutes);
-app.use("/hackathon",hackRoutes);
+app.use("/post", postRoutes);
+app.use("/hackathon", hackRoutes);
 app.post("/updateImage/:id", upload.single("image"), updateImage);
 
 app.use(errorHandler);

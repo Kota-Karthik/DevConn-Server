@@ -1,8 +1,10 @@
+import { 
+    newHackathon
+    } from "../Controllers/Hack";
 import express from "express";
-import { newHackathon } from "../Controllers/OTP.js";
 const router = express.Router();
 
-router.post("/newHackathon/:id", newHackathon);
+router.post("/newHackathon/:userId", newHackathon);
 
 
 export default router;

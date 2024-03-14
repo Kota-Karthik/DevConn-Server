@@ -1,4 +1,5 @@
 import express from "express";
+import { verifyAccessToken } from "../utils/generateToken.js";
 const router = express.Router();
 import {
     newPost,
@@ -8,10 +9,10 @@ import {
 } from "../Controllers/Post.js";
 
 
-router.post("/newPost/:id", newPost);
-router.patch("/likePost/:userId/:postId",likePost);
-router.patch("/unLikePost/:userId/:postId",unLikePost);
-router.patch("/commentPost/:userId/:postId",commentPost);
+router.post("/newPost/:userId",verifyAccessToken, newPost);
+router.patch("/likePost/:userId/:postId",verifyAccessToken,likePost);
+router.patch("/unLikePost/:userId/:postId",verifyAccessToken,unLikePost);
+router.patch("/commentPost/:userId/:postId",verifyAccessToken,commentPost);
 
 
 export default router;
