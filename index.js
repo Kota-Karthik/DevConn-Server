@@ -1,4 +1,6 @@
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
@@ -12,7 +14,7 @@ import connectDB from "./config/db.js";
 import userRoutes from "./routes/User.js";
 import postRoutes from "./routes/Post.js"
 import otpRoutes from "./routes/OTP.js";
-import hackRoutes from "./routes/Hackathon.js";
+import hackRoutes from "./routes/hackathonRoutes.js";
 import { updateImage } from "./Controllers/User.js";
 
 dotenv.config({ path: "./config.env" });
@@ -38,5 +40,20 @@ app.post("/updateImage/:id", upload.single("image"), updateImage);
 app.use(errorHandler);
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => console.log(`🚀 server at http://localhost:${port}.`));
+// app.listen(port, () => 
+const httpServer = createServer(app);
+const io = new Server(httpServer,{
+    cors:{
+        origin:"https://localhost:3000"
+    }
+});
+io.on("connection", (socket) => {
+    console.log(`🚀 New client connected with ID: ${socket.id}`);
+  });
+  
+  // Start the HTTP server
+    httpServer.listen(port, () => {
+    console.log(`🚀 Server is running at http://localhost:${port}`);
+  });
+  
 connectDB();
