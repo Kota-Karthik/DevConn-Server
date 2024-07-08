@@ -1,42 +1,12 @@
-import dotenv from "dotenv";
-dotenv.config({ path: "./config.env" });
+const mongoose = require("mongoose");
 
-import mongoose from "mongoose";
-import process from "process";
-
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URL);
-    if (mongoose.connection.readyState === 1) {
-      console.log(
-        `🫂  Successfully connected to ${mongoose.connection.db.databaseName}`
-      );
-    } else {
-      console.log(
-        `👎 Mongodb error: Unable to retrieve database name. Connection state: ${mongoose.connection.readyState}`
-      );
+const connectDB = async ()=>{
+    try{
+        const conn=await mongoose.connect(process.env.MONGO_URI);
+        console.log(`MongoDB connected: ${conn.connection.host}`.cyan.underline);
+    }catch(error){
+        console.log(`error is : ${error.message}`.red)
     }
-  } catch (err) {
-    console.log(err);
-    console.log(`👎 Mongodb error:`, err.message);
-  }
-};
+}
 
-mongoose.connection.on("connected", () => {
-  console.log(`🔃 Mongoose connected to db`);
-});
-
-mongoose.connection.on("error", (error) => {
-  console.log(`${error.message}`);
-});
-
-mongoose.connection.on("disconnected", () => {
-  console.log(`Mongoose disconnected 😥`);
-});
-
-process.on("SIGINT", async () => {
-  await mongoose.connection.close();
-  process.exit(0);
-});
-
-export default connectDB;
+module.exports=connectDB;

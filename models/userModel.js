@@ -1,9 +1,10 @@
-import mongoose from "mongoose";
-import validator from "validator";
+const mongoose = require("mongoose");
+const validator = require("validator");
+const bcrypt = require("bcryptjs");
 
 const userSchema = mongoose.Schema(
   {
-    username: {
+    name: {
       type: String,
       required: [true, "username is required"],
       trim: true,
@@ -24,17 +25,19 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters"],
+      maxlength: [100, "Password must not exceed 100 characters"],
     },
     techStack: {
       type: [{ type: String }],
     },
     profilePic: {
       type: String,
-      default:
-        "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+      default: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
     },
-    bio: { type: String,
-    default:null },
+    bio: {
+      type: String,
+      default: null,
+    },
     isVerified: {
       type: Boolean,
       default: false,
@@ -52,5 +55,20 @@ const userSchema = mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+}
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    next();
+  } else {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  }
+});
+
 const User = mongoose.model("User", userSchema);
-export default User;
+
+module.exports = User;
