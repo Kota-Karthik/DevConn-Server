@@ -4,6 +4,7 @@ const connectDB = require('./config/db');
 const colors = require('colors');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
+const chatRoutes=require('./routes/chatRoutes');
 const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 
 app.use("/user", userRoutes);
+app.use("/chat",chatRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
