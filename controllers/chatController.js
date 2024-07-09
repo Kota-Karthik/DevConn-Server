@@ -41,7 +41,7 @@ const accessChat = asyncHandler(async (req, res) => {
       );
       res.status(200).send(FullChat);
     } catch (error) {
-      res.status(400).json(error);
+      res.status(400).json(error.message);
     }
   }
 });
@@ -60,7 +60,7 @@ const fetchChats = asyncHandler(async (req, res) => {
       })
       res.status(201).json(chats);
     }catch(error){
-      res.status(400).json(error);
+      res.status(400).json(error.message);
     }
 });
 
@@ -94,13 +94,26 @@ const createGroupChat = asyncHandler(async (req, res) => {
 
     res.status(200).json(fullGroupChat);
   } catch (error) {
-    res.status(400);
-    throw new Error(error.message);
+    res.status(400).json(error.message);
   }
 });
 
 const renameGroup = asyncHandler(async (req, res) => {
-  // Implement renameGroup logic
+    const {chatId,chatName}=req.body;
+    if(!chatId || !chatName){
+      return res.status(400).json("Please Fill all the feilds");
+    }
+    try{
+      const chat=await Chat.findByIdAndUpdate(chatId,{chatName:chatName},{ new: true })
+      .populate("users","-password")
+      .populate("groupAdmins","-password");
+      if(!chat){
+        res.status(400).json("chat not found!");
+      }
+      res.status(200).json(chat);
+    }catch(error){
+      res.status(400).json(error.message);
+    }
 });
 
 const removeFromGroup = asyncHandler(async (req, res) => {
