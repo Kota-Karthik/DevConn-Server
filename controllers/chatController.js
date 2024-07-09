@@ -272,8 +272,8 @@ const makeAdmin = asyncHandler(async (req, res) => {
       },
       { new: true }
     )
-    .populate("users", "-password")
-    .populate("groupAdmins", "-password");
+      .populate("users", "-password")
+      .populate("groupAdmins", "-password");
 
     res.status(200).json(updatedChat);
   } catch (error) {
@@ -282,7 +282,54 @@ const makeAdmin = asyncHandler(async (req, res) => {
 });
 
 const removeAdmin = asyncHandler(async (req, res) => {
-  // Implement removeAdmin logic
+  const { chatId, userId } = req.body;
+
+  if (!chatId || !userId) {
+    return res.status(400).json("Please fill all the fields.");
+  }
+
+  try {
+    const chat = await Chat.findById(chatId)
+      .populate("users", "-password")
+      .populate("groupAdmins", "-password");
+
+    if (!chat) {
+      return res.status(404).json("Chat doesn't exist.");
+    }
+
+    const isAdmin = chat.groupAdmins.some(adminId => adminId.equals(req.user._id));
+    if (!isAdmin) {
+      return res.status(403).json("You aren't the admin of the group.");
+    }
+
+    const isUserInGroup = chat.users.some(userIdInGroup => userIdInGroup.equals(userId));
+    if (!isUserInGroup) {
+      return res.status(404).json("User doesn't exist in the group.");
+    }
+
+    if(req.user._id==userId){
+      return res.status(404).json("You can't remove yourself as admin.");
+    }
+    
+    const isUserAdmin = chat.groupAdmins.some(adminId => adminId.equals(userId));
+    if (!isUserAdmin) {
+      return res.status(200).json(chat); // User is already not an admin
+    }
+
+    const updatedChat = await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        $pull: { groupAdmins: userId }
+      },
+      { new: true }
+    )
+    .populate("users", "-password")
+    .populate("groupAdmins", "-password");
+
+    res.status(200).json(updatedChat);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
 const changeGroupName = asyncHandler(async (req, res) => {
