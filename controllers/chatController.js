@@ -116,10 +116,6 @@ const renameGroup = asyncHandler(async (req, res) => {
   }
 });
 
-const removeFromGroup = asyncHandler(async (req, res) => {
-  // Implement removeFromGroup logic
-});
-
 const addToGroup = asyncHandler(async (req, res) => {
   const { chatId, userId } = req.body;
   if (!chatId || !userId) {
@@ -144,11 +140,36 @@ const addToGroup = asyncHandler(async (req, res) => {
   }
 });
 
+const removeFromGroup = asyncHandler(async (req, res) => {
+  // Implement removeFromGroup logic
+});
+
+const leaveGroup = asyncHandler(async (req, res) => {
+  // Implement leaveGroup logic
+});
+
+const makeAdmin = asyncHandler(async (req, res) => {
+  // Implement makeAdmin logic
+});
+
+const removeAdmin = asyncHandler(async (req, res) => {
+  // Implement removeAdmin logic
+});
+
+const changeGroupName = asyncHandler(async (req, res) => {
+  // Implement changeGroupName logic
+});
+
+
 module.exports = {
   accessChat,
   fetchChats,
   createGroupChat,
   renameGroup,
-  removeFromGroup,
   addToGroup,
+  removeFromGroup,
+  leaveGroup,
+  makeAdmin,
+  removeAdmin,
+  changeGroupName,
 };
