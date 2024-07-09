@@ -47,7 +47,21 @@ const accessChat = asyncHandler(async (req, res) => {
 });
 
 const fetchChats = asyncHandler(async (req, res) => {
-  // Implement fetchChats logic
+    try{
+      var chats=await Chat.find({users:{$elemMatch:{$eq:req.user._id}}})
+      .populate("users","-password")
+      .populate("groupAdmins","-password")
+      .populate("latestMessage")
+      .sort({updatedAt:-1})
+
+      chats=await User.populate(chats,{
+        path:"latestMessage.sender",
+        select:"name profilePic email"
+      })
+      res.status(201).json(chats);
+    }catch(error){
+      res.status(400).json(error);
+    }
 });
 
 const createGroupChat = asyncHandler(async (req, res) => {
