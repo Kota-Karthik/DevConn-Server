@@ -180,9 +180,56 @@ const removeFromGroup = asyncHandler(async (req, res) => {
 });
 
 const leaveGroup = asyncHandler(async (req, res) => {
-  // Implement leaveGroup logic
-});
+  const { chatId } = req.body;
 
+  if (!chatId) {
+    return res.status(400).json("Please fill all the fields.");
+  }
+
+  try {
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json("Chat doesn't exist.");
+    }
+
+    const isUserInGroup = chat.users.some(userIdInGroup => userIdInGroup.equals(req.user._id));
+    if (!isUserInGroup) {
+      return res.status(404).json("User doesn't exist in the group.");
+    }
+
+    const isAdmin = chat.groupAdmins.some(adminId => adminId.equals(req.user._id));
+
+    // Check if the user is the last admin
+    const isLastAdmin = isAdmin && chat.groupAdmins.length === 1;
+
+    let updatedChat = await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        $pull: { users: req.user._id, ...(isAdmin && { groupAdmins: req.user._id }) }
+      },
+      { new: true }
+    )
+      .populate("users", "-password")
+      .populate("groupAdmins", "-password");
+
+    if (isLastAdmin && updatedChat.users.length > 0) {
+      const newAdmin = updatedChat.users[0];
+      updatedChat = await Chat.findByIdAndUpdate(
+        chatId,
+        {
+          $push: { groupAdmins: newAdmin._id }
+        },
+        { new: true }
+      )
+        .populate("users", "-password")
+        .populate("groupAdmins", "-password");
+    }
+
+    res.status(200).json(updatedChat);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 const makeAdmin = asyncHandler(async (req, res) => {
   // Implement makeAdmin logic
 });
