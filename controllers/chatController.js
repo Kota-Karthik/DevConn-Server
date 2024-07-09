@@ -65,7 +65,38 @@ const fetchChats = asyncHandler(async (req, res) => {
 });
 
 const createGroupChat = asyncHandler(async (req, res) => {
-  // Implement createGroupChat logic
+  if (!req.body.users || !req.body.groupName) {
+    return res.status(400).send({ message: "Please Fill all the feilds" });
+  }
+
+  var users = JSON.parse(req.body.users);
+
+  if (users.length < 2) {
+    return res
+      .status(400)
+      .json("More than 2 users are required to form a group chat");
+  }
+
+  users.push(req.user);
+  var admins=[];
+  admins.push(req.user);
+  try {
+    const groupChat = await Chat.create({
+      chatName: req.body.groupName,
+      users: users,
+      isGroupChat: true,
+      groupAdmins:admins ,
+    });
+
+    const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+      .populate("users", "-password")
+      .populate("groupAdmins", "-password");
+
+    res.status(200).json(fullGroupChat);
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
 });
 
 const renameGroup = asyncHandler(async (req, res) => {
