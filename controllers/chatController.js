@@ -163,7 +163,7 @@ const removeFromGroup = asyncHandler(async (req, res) => {
       return res.status(404).json("User doesn't exist in the group.");
     }
 
-    if(req.user._id==userId){
+    if (req.user._id == userId) {
       return res.status(404).json("You can't remove yourself from group (you can leave the group instead)!");
     }
     const updatedChat = await Chat.findByIdAndUpdate(
@@ -233,8 +233,52 @@ const leaveGroup = asyncHandler(async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
 const makeAdmin = asyncHandler(async (req, res) => {
-  // Implement makeAdmin logic
+  const { chatId, userId } = req.body;
+
+  if (!chatId || !userId) {
+    return res.status(400).json("Please fill all the fields.");
+  }
+
+  try {
+    const chat = await Chat.findById(chatId)
+      .populate("users", "-password")
+      .populate("groupAdmins", "-password");
+
+    if (!chat) {
+      return res.status(404).json("Chat doesn't exist.");
+    }
+
+    const isAdmin = chat.groupAdmins.some(adminId => adminId.equals(req.user._id));
+    if (!isAdmin) {
+      return res.status(403).json("You aren't the admin of the group.");
+    }
+
+    const isUserInGroup = chat.users.some(userIdInGroup => userIdInGroup.equals(userId));
+    if (!isUserInGroup) {
+      return res.status(404).json("User doesn't exist in the group.");
+    }
+
+    const isUserAdmin = chat.groupAdmins.some(adminId => adminId.equals(userId));
+    if (isUserAdmin) {
+      return res.status(200).json(chat);
+    }
+
+    const updatedChat = await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        $addToSet: { groupAdmins: userId }
+      },
+      { new: true }
+    )
+    .populate("users", "-password")
+    .populate("groupAdmins", "-password");
+
+    res.status(200).json(updatedChat);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
 const removeAdmin = asyncHandler(async (req, res) => {
