@@ -10,7 +10,6 @@ const {
   leaveGroup,
   makeAdmin,
   removeAdmin,
-  changeGroupName,
 } = require("../controllers/chatController");
 
 const router = express.Router();
@@ -24,6 +23,6 @@ router.patch("/removeFromGroup", protect, removeFromGroup);
 router.patch("/leaveGroup",protect,leaveGroup);
 router.patch("/makeAdmin",protect,makeAdmin);
 router.patch("/removeAdmin",protect,removeAdmin);
-router.patch("/changeGroupName",protect,changeGroupName);
+
 
 module.exports = router;
