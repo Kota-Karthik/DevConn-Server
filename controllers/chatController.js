@@ -163,6 +163,9 @@ const removeFromGroup = asyncHandler(async (req, res) => {
       return res.status(404).json("User doesn't exist in the group.");
     }
 
+    if(req.user._id==userId){
+      return res.status(404).json("You can't remove yourself from group (you can leave the group instead)!");
+    }
     const updatedChat = await Chat.findByIdAndUpdate(
       chatId,
       {
