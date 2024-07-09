@@ -141,7 +141,42 @@ const addToGroup = asyncHandler(async (req, res) => {
 });
 
 const removeFromGroup = asyncHandler(async (req, res) => {
-  // Implement removeFromGroup logic
+  const { chatId, userId } = req.body;
+
+  if (!chatId || !userId) {
+    return res.status(400).json("Please fill all the fields.");
+  }
+
+  try {
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json("Chat doesn't exist.");
+    }
+
+    const isAdmin = chat.groupAdmins.some(adminId => adminId.equals(req.user._id));
+    if (!isAdmin) {
+      return res.status(403).json("You aren't the admin of the group.");
+    }
+
+    const isUserInGroup = chat.users.some(userIdInGroup => userIdInGroup.equals(userId));
+    if (!isUserInGroup) {
+      return res.status(404).json("User doesn't exist in the group.");
+    }
+
+    const updatedChat = await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        $pull: { users: userId },
+      },
+      { new: true }
+    )
+      .populate("users", "-password")
+      .populate("groupAdmins", "-password");
+
+    res.status(200).json(updatedChat);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
 const leaveGroup = asyncHandler(async (req, res) => {
